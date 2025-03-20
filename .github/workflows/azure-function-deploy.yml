@@ -48,7 +48,7 @@ jobs:
       - name: Terraform Apply (Infrastructure Deployment) & Capture Outputs
         run: |
             terraform apply -auto-approve
-            echo "(terraform output -raw function_app_name)"
+            terraform output -raw function_app_name
         working-directory: terraform
 
   tests:
@@ -83,16 +83,24 @@ jobs:
         run: |
           echo "### 📝 Pytest Test Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Test Name | Status |" >> $GITHUB_STEP_SUMMARY
-          echo "|----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Test Name | Status | Error Message |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|--------|--------------|" >> $GITHUB_STEP_SUMMARY
           python -c "
-          from junitparser import JUnitXml
+          from junitparser import JUnitXml, Failure
+          
           xml = JUnitXml.fromfile('pytest_report.xml')
-          for suite in xml:
-              for case in suite:
-                  status = '✅ Pass' if case.result is None else '❌ Fail'
-                  print(f'| {case.name} | {status} |', file=open('$GITHUB_STEP_SUMMARY', 'a'))
-          "
+          with open('$GITHUB_STEP_SUMMARY', 'a') as summary_file:
+              for suite in xml:
+                  for case in suite:
+                      if case.result:
+                          failure = next((res for res in case.result if isinstance(res, Failure)), None)
+                          status = '❌ Fail' if failure else '✅ Pass'
+                          error_msg = failure.message.strip().split('\n')[0] if failure else 'N/A'
+                      else:
+                          status = '✅ Pass'
+                          error_msg = 'N/A'
+                      
+                      summary_file.write(f'| {case.name} | {status} | {error_msg} |\n')
           
       - name: Convert JUnit XML to HTML
         run: junit2html pytest_report.xml pytest_report.html
