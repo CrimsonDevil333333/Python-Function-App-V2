@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+permissions:  
+  id-token: write  # Required for OIDC authentication with Azure  
+  contents: read   # Default read access to repo contents  
+
 jobs:
   terraform:
     name: Terraform Infrastructure Deployment
