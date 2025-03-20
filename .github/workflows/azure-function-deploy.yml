@@ -57,10 +57,11 @@ jobs:
       #     echo "::add-mask::$(terraform output -raw function_app_system_key)"
       #   working-directory: terraform
       
-      - name: Print Function App Details (without exposing secrets)
-        run: |
-          echo "Function App Name: $FUNC_APP_NAME"
-          echo "Function App URL: $FUNC_APP_URL"
+      # Not required as tf apply allready displays it in the logs
+      # - name: Print Function App Details (without exposing secrets)
+      #   run: |
+      #     echo "Function App Name: $FUNC_APP_NAME"
+      #     echo "Function App URL: $FUNC_APP_URL"
 
   tests:
     name: Run Unit Tests for Azure Function
@@ -83,7 +84,7 @@ jobs:
         run: pytest tests/ --junitxml=pytest_report.xml
 
       - name: Upload Test Report (if failure)
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: pytest-report
