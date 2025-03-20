@@ -88,7 +88,6 @@ jobs:
           echo "|----------|--------|--------------|" >> $GITHUB_STEP_SUMMARY
           python -c "
           from junitparser import JUnitXml, Failure
-          
           xml = JUnitXml.fromfile('pytest_report.xml')
           with open('$GITHUB_STEP_SUMMARY', 'a') as summary_file:
               for suite in xml:
