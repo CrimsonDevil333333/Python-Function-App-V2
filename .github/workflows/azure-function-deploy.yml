@@ -101,7 +101,6 @@ jobs:
                           status = '✅ Pass'
                           error_msg = 'N/A'
                       summary_file.write(f'| {case.name} | {status} | {error_msg} |\n')
-          
       - name: Convert JUnit XML to HTML
         run: junit2html pytest_report.xml pytest_report.html
 
