@@ -42,6 +42,13 @@ jobs:
           echo "FUNC_APP_URL=$(terraform output -raw function_app_url)" >> $GITHUB_ENV
           echo "FUNC_APP_SYSTEM_KEY=$(terraform output -raw function_app_system_key)" >> $GITHUB_ENV        
         working-directory: terraform
+      
+      - name: Print Function App Details
+        run: |
+          echo "Function App Name: $FUNC_APP_NAME"
+          echo "Function App URL: $FUNC_APP_URL"
+          echo "System Key: [HIDDEN]" # Do not print system key use $FUNC_APP_SYSTEM_KEY to print it if required !
+
 
   tests:
     name: Run Unit Tests for Azure Function
