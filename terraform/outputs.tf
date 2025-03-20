@@ -13,6 +13,6 @@ output "function_app_master_key" {
 }
 
 output "function_app_system_key" {
-  value = data.azurerm_function_app_host_keys.func.system_key
+  value = data.azurerm_function_app_host_keys.func.primary_key
   sensitive = true
 }
