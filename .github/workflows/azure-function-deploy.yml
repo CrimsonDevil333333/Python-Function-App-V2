@@ -45,23 +45,12 @@ jobs:
         run: terraform plan
         working-directory: terraform
         
-      - name: Terraform Apply (Infrastructure Deployment)
-        run: terraform apply -auto-approve
+      - name: Terraform Apply (Infrastructure Deployment) & Capture Outputs
+        run: |
+          terraform apply -auto-approve
+          echo "FUNC_APP_NAME=$(terraform output -raw function_app_name)" >> $GITHUB_ENV
+          echo "Extracted Function App Name: $FUNC_APP_NAME"  # Debugging line
         working-directory: terraform
-        
-      # - name: Capture Terraform Outputs
-      #   run: |
-      #     echo "FUNC_APP_NAME=$(terraform output -raw function_app_name)" >> $GITHUB_ENV
-      #     echo "FUNC_APP_URL=$(terraform output -raw function_app_url)" >> $GITHUB_ENV
-      #     # Do NOT expose system key directly in logs!
-      #     echo "::add-mask::$(terraform output -raw function_app_system_key)"
-      #   working-directory: terraform
-      
-      # Not required as tf apply allready displays it in the logs
-      # - name: Print Function App Details (without exposing secrets)
-      #   run: |
-      #     echo "Function App Name: $FUNC_APP_NAME"
-      #     echo "Function App URL: $FUNC_APP_URL"
 
   tests:
     name: Run Unit Tests for Azure Function
