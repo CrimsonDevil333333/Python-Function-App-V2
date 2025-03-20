@@ -89,7 +89,7 @@ jobs:
         run: pip install -r requirements.txt pytest-github-actions-annotate-failures junit2html junitparser
 
       - name: Run Pytest Unit Tests
-        run: PYTHONPATH=. pytest tests/ --junitxml=pytest_report.xml --tb=short --github-actions
+        run: PYTHONPATH=. pytest tests/ --junitxml=pytest_report.xml --tb=short
 
       - name: Convert JUnit XML to Markdown Summary
         run: |
