@@ -77,18 +77,44 @@ jobs:
         with:
           python-version: 3.11
 
+      - name: Cache pip dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
       - name: Install Dependencies
-        run: pip install -r requirements.txt
+        run: pip install -r requirements.txt pytest-github-actions-annotate-failures junit2html junitparser
 
       - name: Run Pytest Unit Tests
-        run: pytest tests/ --junitxml=pytest_report.xml
+        run: PYTHONPATH=. pytest tests/ --junitxml=pytest_report.xml --tb=short --github-actions
 
-      - name: Upload Test Report (if failure)
+      - name: Convert JUnit XML to Markdown Summary
+        run: |
+          echo "### 📝 Pytest Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Test Name | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|--------|" >> $GITHUB_STEP_SUMMARY
+          python -c "
+          from junitparser import JUnitXml
+          xml = JUnitXml.fromfile('pytest_report.xml')
+          for suite in xml:
+              for case in suite:
+                  status = '✅ Pass' if case.result is None else '❌ Fail'
+                  print(f'| {case.name} | {status} |', file=open('$GITHUB_STEP_SUMMARY', 'a'))
+          "
+          
+      - name: Convert JUnit XML to HTML
+        run: junit2html pytest_report.xml pytest_report.html
+
+      - name: Upload HTML Test Report
         uses: actions/upload-artifact@v4
-        if: failure()
         with:
-          name: pytest-report
-          path: pytest_report.xml
+          name: pytest-html-report
+          path: pytest_report.html
+
 
   deploy-function:
     name: Deploy Azure Function
