@@ -48,7 +48,7 @@ jobs:
       - name: Terraform Apply (Infrastructure Deployment) & Capture Outputs
         run: |
             terraform apply -auto-approve
-            terraform output -raw function_app_name
+            echo "FUNC_APP_NAME=$(terraform output -raw function_app_name | cut -d ':' -f1)" >> $GITHUB_ENV
         working-directory: terraform
 
   tests:
@@ -94,12 +94,11 @@ jobs:
                   for case in suite:
                       if case.result:
                           failure = next((res for res in case.result if isinstance(res, Failure)), None)
-                          status = '❌ Fail' if failure else '✅ Pass'
+                          status = '❌ Fail'
                           error_msg = failure.message.strip().split('\n')[0] if failure else 'N/A'
                       else:
                           status = '✅ Pass'
                           error_msg = 'N/A'
-                      
                       summary_file.write(f'| {case.name} | {status} | {error_msg} |\n')
           
       - name: Convert JUnit XML to HTML
