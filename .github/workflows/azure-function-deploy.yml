@@ -22,6 +22,11 @@ jobs:
       - name: Terraform Init
         run: terraform init
         working-directory: terraform
+        env:
+          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
 
       - name: Terraform Plan
         run: terraform plan
@@ -30,11 +35,6 @@ jobs:
       - name: Terraform Apply (Infrastructure Deployment)
         run: terraform apply -auto-approve
         working-directory: terraform
-        env:
-          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
 
       - name: Capture Terraform Outputs
         run: |
@@ -47,8 +47,6 @@ jobs:
         run: |
           echo "Function App Name: $FUNC_APP_NAME"
           echo "Function App URL: $FUNC_APP_URL"
-          echo "System Key: [HIDDEN]" # Do not print system key use $FUNC_APP_SYSTEM_KEY to print it if required !
-
 
   tests:
     name: Run Unit Tests for Azure Function
@@ -92,12 +90,10 @@ jobs:
           python-version: 3.11
 
       - name: Install Azure Functions Core Tools
-        run: |
-          npm install -g azure-functions-core-tools@4 --unsafe-perm true
+        run: npm install -g azure-functions-core-tools@4 --unsafe-perm true
 
       - name: Install Dependencies
         run: pip install -r requirements.txt
 
       - name: Deploy Function to Azure
-        run: |
-          func azure functionapp publish $FUNC_APP_NAME
+        run: func azure functionapp publish $FUNC_APP_NAME
