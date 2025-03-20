@@ -132,6 +132,6 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Deploy Function to Azure
-        run: func azure functionapp publish func-east-asia-poc-dev-01
+        run: func azure functionapp publish func-east-asia-poc-dev-01 --python
       # Need to fix this to capture the output of the function app name
       # run: func azure functionapp publish $FUNC_APP_NAME
