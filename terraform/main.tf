@@ -37,3 +37,9 @@ resource "azurerm_linux_function_app" "func" {
     }
   }
 }
+
+# Create Host Keys for the Function App
+resource "azurerm_function_app_host_keys" "func" {
+  name            = azurerm_linux_function_app.func.name
+  resource_group_name = azurerm_resource_group.rg.name
+}
