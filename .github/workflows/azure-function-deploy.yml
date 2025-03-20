@@ -49,13 +49,13 @@ jobs:
         run: terraform apply -auto-approve
         working-directory: terraform
         
-      - name: Capture Terraform Outputs
-        run: |
-          echo "FUNC_APP_NAME=$(terraform output -raw function_app_name)" >> $GITHUB_ENV
-          echo "FUNC_APP_URL=$(terraform output -raw function_app_url)" >> $GITHUB_ENV
-          # Do NOT expose system key directly in logs!
-          echo "::add-mask::$(terraform output -raw function_app_system_key)"
-        working-directory: terraform
+      # - name: Capture Terraform Outputs
+      #   run: |
+      #     echo "FUNC_APP_NAME=$(terraform output -raw function_app_name)" >> $GITHUB_ENV
+      #     echo "FUNC_APP_URL=$(terraform output -raw function_app_url)" >> $GITHUB_ENV
+      #     # Do NOT expose system key directly in logs!
+      #     echo "::add-mask::$(terraform output -raw function_app_system_key)"
+      #   working-directory: terraform
       
       - name: Print Function App Details (without exposing secrets)
         run: |
