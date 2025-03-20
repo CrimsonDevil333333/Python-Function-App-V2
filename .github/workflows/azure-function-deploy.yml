@@ -9,10 +9,22 @@ jobs:
   terraform:
     name: Terraform Infrastructure Deployment
     runs-on: ubuntu-latest
+    env:
+      ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
@@ -22,38 +34,24 @@ jobs:
       - name: Terraform Init
         run: terraform init
         working-directory: terraform
-        env:
-          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-
+        
       - name: Terraform Plan
         run: terraform plan
         working-directory: terraform
-        env:
-          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-
+        
       - name: Terraform Apply (Infrastructure Deployment)
         run: terraform apply -auto-approve
         working-directory: terraform
-        env:
-          ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-          ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-
+        
       - name: Capture Terraform Outputs
         run: |
           echo "FUNC_APP_NAME=$(terraform output -raw function_app_name)" >> $GITHUB_ENV
           echo "FUNC_APP_URL=$(terraform output -raw function_app_url)" >> $GITHUB_ENV
-          echo "FUNC_APP_SYSTEM_KEY=$(terraform output -raw function_app_system_key)" >> $GITHUB_ENV        
+          # Do NOT expose system key directly in logs!
+          echo "::add-mask::$(terraform output -raw function_app_system_key)"
         working-directory: terraform
       
-      - name: Print Function App Details
+      - name: Print Function App Details (without exposing secrets)
         run: |
           echo "Function App Name: $FUNC_APP_NAME"
           echo "Function App URL: $FUNC_APP_URL"
