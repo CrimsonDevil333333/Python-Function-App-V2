@@ -1,4 +1,4 @@
-name: Deploy Azure Functions with Terraform
+name: Deploy Azure Function with Terraform
 
 on:
   push:
@@ -36,7 +36,12 @@ jobs:
           ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
 
-  deploy-functions:
+      - name: Capture Terraform Output
+        run: |
+          echo "FUNC_APP_NAME=$(terraform output -raw function_app_name)" >> $GITHUB_ENV
+        working-directory: terraform
+
+  deploy-function:
     name: "Deploy Azure Function"
     runs-on: ubuntu-latest
     needs: terraform
@@ -58,4 +63,5 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Deploy Function to Azure
-        run: func azure functionapp publish ${{ secrets.AZURE_FUNCTION_APP }}
+        run: |
+          func azure functionapp publish $FUNC_APP_NAME
