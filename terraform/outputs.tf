@@ -7,11 +7,11 @@ output "function_app_name" {
 }
 
 output "function_app_master_key" {
-  value = azurerm_linux_function_app_host_keys.func.default_function_key
+  value = azurerm_linux_function_app.func.default_function_key
   sensitive = true
 }
 
 output "function_app_system_key" {
-  value = azurerm_linux_function_app_host_keys.func.system_key
+  value = azurerm_linux_function_app.func.system_key
   sensitive = true
 }

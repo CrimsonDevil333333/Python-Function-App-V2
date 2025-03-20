@@ -37,15 +37,3 @@ resource "azurerm_linux_function_app" "func" {
     }
   }
 }
-
-# Fetch Function App Host Keys (Including Master Key)
-data "azurerm_function_app_host_keys" "func_keys" {
-  name                = azurerm_linux_function_app.func.name
-  resource_group_name = azurerm_linux_function_app.func.resource_group_name
-}
-
-# Fetch Storage Account Connection String
-data "azurerm_storage_account" "storage_info" {
-  name                = azurerm_storage_account.storage.name
-  resource_group_name = azurerm_resource_group.rg.name
-}
